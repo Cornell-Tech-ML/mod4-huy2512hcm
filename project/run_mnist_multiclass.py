@@ -42,7 +42,7 @@ class Conv2d(minitorch.Module):
 
     def forward(self, input):
         # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        return minitorch.conv2d(input, self.weights.value) + self.bias.value
 
 
 class Network(minitorch.Module):
@@ -68,11 +68,47 @@ class Network(minitorch.Module):
         self.out = None
 
         # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        self.conv1 = Conv2d(1, 4, 3, 3)
+        # Second convolutional layer: Combines basic features into more complex patterns
+        # Input: 4 feature maps from conv1, Output: 8 higher-level feature maps with 3x3 kernel
+        self.conv2 = Conv2d(4, 8, 3, 3)
+        # First fully connected layer: Transforms spatial features into abstract representations
+        # Input: Flattened conv2 output (8 * 7 * 7 = 392), Output: 64 neurons
+        self.linear1 = Linear(392, 64)
+        # Output layer: Maps abstract features to class probabilities
+        # Input: 64 neurons, Output: C neurons (one per class, 10 for MNIST digits)
+        self.linear2 = Linear(64, C)
 
     def forward(self, x):
         # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        x = self.conv1.forward(x).relu()
+        self.mid = x
+        # Second conv block with ReLU activation, store intermediate result for visualization
+        x = self.conv2.forward(x).relu()
+        self.out = x
+        # Apply max pooling to reduce spatial dimensions
+        x = minitorch.nn.maxpool2d(x, (4, 4))
+        # Flatten the tensor for the fully connected layer
+        x = x.view(
+            BATCH,
+            # Number of channels * height * width after pooling
+            x.shape[1] * x.shape[2] * x.shape[3],
+        )
+        # First fully connected layer with ReLU activation
+        x = self.linear1.forward(x).relu()
+        # Apply dropout for regularization
+        x = minitorch.nn.dropout(
+            x,
+            # Dropout rate of 25% to prevent overfitting
+            0.25,
+            # Dropout is not applied during evaluation
+            not self.training,
+        )
+        # Second fully connected layer to map to class scores
+        x = self.linear2.forward(x)
+        # Apply log softmax to convert scores to log probabilities
+        x = minitorch.nn.logsoftmax(x, 1)
+        return x
 
 
 def make_mnist(start, stop):
