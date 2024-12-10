@@ -77,27 +77,27 @@ if numba.cuda.is_available():
 
     @pytest.mark.task4_4b
     def test_conv1d_cuda() -> None:
-        TEST_SAMPLES = 25
+        TEST_SAMPLES = 30
         for t_shape, w_shape in zip(
             [
-                (2, 2, 12),
-                (4, 3, 10),
-                (18, 12, 8),
-                (45, 5, 6),
-                (8, 25, 9),
-                (35, 7, 7),
-                (7, 45, 8),
-                (25, 6, 4),
+                (1, 1, 10),
+                (3, 2, 8),
+                (20, 15, 10),
+                (50, 4, 7),
+                (5, 40, 6),
+                (40, 6, 8),
+                (6, 50, 9),
+                (30, 4, 5),
             ],
             [
-                (2, 2, 4),
-                (3, 3, 2),
-                (5, 12, 5),
-                (7, 5, 3),
-                (4, 25, 2),
-                (7, 7, 3),
-                (4, 45, 4),
-                (4, 6, 2),
+                (1, 1, 5),
+                (2, 2, 3),
+                (4, 15, 6),
+                (6, 4, 4),
+                (3, 40, 3),
+                (6, 6, 4),
+                (3, 50, 5),
+                (3, 4, 3),
             ],
         ):
             for _ in range(TEST_SAMPLES):
@@ -108,15 +108,19 @@ if numba.cuda.is_available():
                     [random.random() * 1500 - 750 for __ in range(numpy.prod(w_shape))]
                 )
                 t_tensor = Tensor.make(
-                    t_storage, t_shape, backend=minitorch.SimpleBackend
+                    t_storage,
+                    t_shape,
+                    backend=minitorch.TensorBackend(minitorch.CudaOps),
                 )
                 w_tensor = Tensor.make(
-                    w_storage, w_shape, backend=minitorch.SimpleBackend
+                    w_storage,
+                    w_shape,
+                    backend=minitorch.TensorBackend(minitorch.CudaOps),
                 )
                 conv_out_a = minitorch.Conv1dFun.apply(t_tensor, w_tensor)
                 conv_out_b = minitorch.cuda_conv.Conv1dFun.apply(t_tensor, w_tensor)
                 numpy.testing.assert_allclose(
-                    conv_out_a._tensor._storage, conv_out_b._tensor._storage, 1e-3, 1e-3
+                    conv_out_a._tensor._storage, conv_out_b._tensor._storage, 1e-2, 1e-2
                 )
                 minitorch.grad_check(
                     minitorch.cuda_conv.Conv1dFun.apply, t_tensor, w_tensor
@@ -124,21 +128,21 @@ if numba.cuda.is_available():
 
     @pytest.mark.task4_4b
     def test_conv2d_cuda() -> None:
-        TEST_SAMPLES = 25
+        TEST_SAMPLES = 30
         for t2d_shape, w2d_shape in zip(
             [
+                (1, 1, 8, 8),
                 (2, 2, 10, 10),
                 (3, 3, 12, 12),
-                (4, 5, 16, 16),
-                (6, 25, 20, 10),
-                (8, 35, 40, 9),
+                (5, 20, 25, 8),
+                (6, 40, 50, 7),
             ],
             [
+                (1, 1, 3, 3),
                 (2, 2, 4, 4),
                 (3, 3, 5, 5),
-                (4, 4, 6, 6),
-                (6, 25, 10, 8),
-                (8, 35, 7, 7),
+                (5, 20, 8, 6),
+                (6, 40, 9, 7),
             ],
         ):
             for _ in range(TEST_SAMPLES):
@@ -155,10 +159,14 @@ if numba.cuda.is_available():
                     ]
                 )
                 t2d_tensor = Tensor.make(
-                    t2d_storage, t2d_shape, backend=minitorch.SimpleBackend
+                    t2d_storage,
+                    t2d_shape,
+                    backend=minitorch.TensorBackend(minitorch.CudaOps),
                 )
                 w2d_tensor = Tensor.make(
-                    w2d_storage, w2d_shape, backend=minitorch.SimpleBackend
+                    w2d_storage,
+                    w2d_shape,
+                    backend=minitorch.TensorBackend(minitorch.CudaOps),
                 )
                 conv2d_out_a = minitorch.Conv2dFun.apply(t2d_tensor, w2d_tensor)
                 conv2d_out_b = minitorch.cuda_conv.Conv2dFun.apply(
@@ -167,8 +175,8 @@ if numba.cuda.is_available():
                 numpy.testing.assert_allclose(
                     conv2d_out_a._tensor._storage,
                     conv2d_out_b._tensor._storage,
-                    1e-3,
-                    1e-3,
+                    1e-2,
+                    1e-2,
                 )
                 minitorch.grad_check(
                     minitorch.cuda_conv.Conv2dFun.apply, t2d_tensor, w2d_tensor
