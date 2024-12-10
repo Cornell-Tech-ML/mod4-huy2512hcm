@@ -80,38 +80,32 @@ if numba.cuda.is_available():
         TEST_SAMPLES = 30
         for t_shape, w_shape in zip(
             [
-                (1, 1, 10),  # Changed to slightly larger tensor shapes
+                (1, 1, 10),
                 (3, 2, 8),
-                (20, 15, 10),
-                (50, 4, 7),
+                (11, 15, 10),
+                (49, 4, 7),
                 (5, 40, 6),
                 (40, 6, 8),
                 (6, 50, 9),
-                (30, 4, 5),
+                (33, 4, 5),
             ],
             [
-                (1, 1, 5),  # Adjusted weight shapes to ensure compatibility
-                (2, 2, 3),
+                (1, 1, 5),
+                (5, 2, 3),
                 (4, 15, 6),
                 (6, 4, 4),
-                (3, 40, 3),
+                (8, 40, 3),
                 (6, 6, 4),
-                (3, 50, 5),
+                (7, 50, 5),
                 (3, 4, 3),
             ],
         ):
             for _ in range(TEST_SAMPLES):
                 t_storage = numpy.array(
-                    [
-                        random.random() * 1500 - 750
-                        for __ in range(numpy.prod(t_shape))
-                    ]
+                    [random.random() * 1500 - 750 for __ in range(numpy.prod(t_shape))]
                 )
                 w_storage = numpy.array(
-                    [
-                        random.random() * 1500 - 750
-                        for __ in range(numpy.prod(w_shape))
-                    ]
+                    [random.random() * 1500 - 750 for __ in range(numpy.prod(w_shape))]
                 )
                 tensor = Tensor.make(
                     t_storage, t_shape, backend=minitorch.SimpleBackend
@@ -133,32 +127,26 @@ if numba.cuda.is_available():
         TEST_SAMPLES = 30
         for t_shape, w_shape in zip(
             [
-                (1, 1, 8, 8),  
+                (1, 1, 8, 8),
                 (2, 2, 10, 10),
-                (3, 3, 12, 12),
+                (3, 3, 14, 14),
                 (5, 20, 25, 8),
                 (6, 40, 50, 7),
             ],
             [
-                (1, 1, 3, 3), 
-                (2, 2, 4, 4),
-                (3, 3, 5, 5),
+                (1, 1, 2, 2),
+                (2, 2, 3, 3),
+                (3, 3, 4, 4),
                 (5, 20, 8, 6),
                 (6, 40, 9, 7),
             ],
         ):
             for _ in range(TEST_SAMPLES):
                 t_storage = numpy.array(
-                    [
-                        random.random() * 2000 - 1000
-                        for __ in range(numpy.prod(t_shape))
-                    ]
+                    [random.random() * 2000 - 1000 for __ in range(numpy.prod(t_shape))]
                 )
                 weight_storage = numpy.array(
-                    [
-                        random.random() * 2000 - 1000
-                        for __ in range(numpy.prod(w_shape))
-                    ]
+                    [random.random() * 2000 - 1000 for __ in range(numpy.prod(w_shape))]
                 )
                 tensor = Tensor.make(
                     t_storage, t_shape, backend=minitorch.SimpleBackend
